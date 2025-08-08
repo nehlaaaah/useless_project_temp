@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Intergalactic Identity Bureau</title>
+<style>
+    body {
+        background-color: #0a0f1c;
+        color: #00ffcc;
+        font-family: 'Courier New', monospace;
+        text-align: center;
+        padding: 20px;
+    }
+    h1 {
+        color: #00ffe1;
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+    input, button {
+        padding: 10px;
+        margin: 10px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1em;
+    }
+    input {
+        width: 250px;
+    }
+    button {
+        background-color: #00ffcc;
+        color: #0a0f1c;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #00d4a0;
+    }
+    .result {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #00ffcc;
+        background-color: rgba(0,255,204,0.1);
+        text-align: left;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        white-space: pre-line;
+    }
+</style>
+</head>
+<body>
+
+<h1>🛸 Intergalactic Identity Bureau 🛸</h1>
+<p>Enter your name to reveal your alien past life record</p>
+<input type="text" id="nameInput" placeholder="Enter your name">
+<button onclick="generateAlienProfile()">Reveal Identity</button>
+
+<div class="result" id="resultBox"></div>
+
+<script>
+function generateAlienProfile() {
+    let name = document.getElementById('nameInput').value.trim();
+    if (!name) {
+        alert("Please enter your name");
+        return;
+    }
+
+    // Alien name conversion
+    let alienName = name
+        .replace(/a/gi, "æ")
+        .replace(/e/gi, "ë")
+        .replace(/i/gi, "ï")
+        .replace(/o/gi, "ø")
+        .replace(/u/gi, "û")
+        .replace(/n/gi, "ñ") + " of " + getRandom(["T’Zorin-4","Xebara Prime","Veyra-9","Orivon","Zynthara"]);
+
+    // Planetary description
+    let planet = getRandom([
+        "a temperate ocean planet with coral cities beneath sapphire waves",
+        "a desert world with twin suns and endless dune seas",
+        "a frozen moon with subterranean crystal caverns",
+        "a gas giant’s orbiting station-ring where storms last for centuries",
+        "a volcanic world rich in rare energy minerals"
+    ]);
+
+    // Species classification
+    let species = getRandom([
+        "Hominis Aquaflora – semi-aquatic humanoids with bioluminescent patterns",
+        "Sylvaran Noctis – tall, night-dwelling beings with reflective eyes",
+        "Terravox Sentari – telepathic explorers adapted to low gravity",
+        "Cryovian Lux – crystalline lifeforms that refract starlight",
+        "Dravari Solun – heat-resistant beings with ember-like skin"
+    ]);
+
+    // Role in society
+    let role = getRandom([
+        "Starship Navigator mapping hyperspace currents",
+        "Tidal Cartographer charting deep-ocean migration routes",
+        "Celestial Diplomat negotiating peace between rival worlds",
+        "Artifact Keeper guarding relics from pre-warp civilizations",
+        "Quantum Botanist cultivating plants that grow in zero gravity"
+    ]);
+
+    // Personality
+    let personality = getRandom([
+        "Highly intuitive and empathetic, drawn to uncovering hidden truths",
+        "Strategic and disciplined, respected for unwavering loyalty",
+        "Adventurous and curious, often venturing beyond safe borders",
+        "Calm and analytical, known for solving complex interstellar disputes",
+        "Energetic and inventive, creating tools centuries ahead of your time"
+    ]);
+
+    // Historical event
+    let history = getRandom([
+        "Survived the 5th Moonquake War and negotiated the ceasefire treaty",
+        "Led the first successful expedition through the Zynara Nebula",
+        "Defended the Sapphire Reefs from the Solar Tide Raiders",
+        "Discovered an ancient starmap that revealed hidden wormholes",
+        "Brokered an alliance between the Orivon Clans and Zyntharan Guilds"
+    ]);
+
+    let result = 
+`📄 ALIEN RECORD FILE: CLASSIFIED – ACCESS GRANTED
+
+👽 Alien Name: ${alienName}
+🌍 Homeworld: ${planet}
+🧬 Species: ${species}
+🛠 Role in Society: ${role}
+💠 Personality Traits: ${personality}
+📜 Notable History: ${history}
+
+⚠️ Record pulled from Intergalactic Archives – authenticity unverifiable.`;
+
+    document.getElementById('resultBox').innerText = result;
+}
+
+function getRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+</script>
+
+</body>
+</html>
