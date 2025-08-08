@@ -1,142 +1,570 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Intergalactic Identity Bureau</title>
-<style>
-    body {
-        background-color: #0a0f1c;
-        color: #00ffcc;
-        font-family: 'Courier New', monospace;
-        text-align: center;
-        padding: 20px;
-    }
-    h1 {
-        color: #00ffe1;
-        font-size: 2em;
-        margin-bottom: 10px;
-    }
-    input, button {
-        padding: 10px;
-        margin: 10px;
-        border: none;
-        border-radius: 5px;
-        font-size: 1em;
-    }
-    input {
-        width: 250px;
-    }
-    button {
-        background-color: #00ffcc;
-        color: #0a0f1c;
-        cursor: pointer;
-    }
-    button:hover {
-        background-color: #00d4a0;
-    }
-    .result {
-        margin-top: 20px;
-        padding: 15px;
-        border: 1px solid #00ffcc;
-        background-color: rgba(0,255,204,0.1);
-        text-align: left;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
-        white-space: pre-line;
-    }
-</style>
+    <meta charset="UTF-8">
+    <title>Wake Up! Alarm Clock</title>
+    <link rel="icon" href="https://lh4.ggpht.com/1udF0HDha4jFIAD7EKLGdPIaNdGAVycX1kXuC7d5pI20INx_GdhEdMKLK5ePRNeo0SE">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom responsive styles */
+        @media (max-width: 640px) {
+            .alarm-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .alarm-input-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+            
+            .ringing-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+                width: 100%;
+            }
+            
+            .ringing-buttons button {
+                width: 100%;
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .main-container {
+                margin: 0.5rem;
+                padding: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 1rem;
+                margin: 0.25rem;
+                border-radius: 1.5rem;
+            }
+            
+            .time-display {
+                font-size: 2.5rem !important;
+                line-height: 1.1;
+            }
+            
+            .title {
+                font-size: 2rem !important;
+            }
+            
+            .alarm-input-group input {
+                padding: 1rem;
+                font-size: 1.1rem;
+            }
+            
+            .alarm-buttons button {
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .ringing-buttons button {
+                padding: 0.875rem 1.25rem;
+                font-size: 0.9rem;
+                border-radius: 0.75rem;
+            }
+            
+            .mode-display {
+                font-size: 1.75rem !important;
+            }
+            
+            .mode-text {
+                font-size: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .main-container {
+                padding: 0.75rem;
+                margin: 0.125rem;
+            }
+            
+            .time-display {
+                font-size: 2rem !important;
+            }
+            
+            .title {
+                font-size: 1.75rem !important;
+            }
+            
+            .mode-display {
+                font-size: 1.5rem !important;
+            }
+        }
+        
+        /* Enhanced button responsiveness */
+        button {
+            transition: all 0.2s ease-in-out;
+            min-height: 44px; /* Minimum touch target size */
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        /* Better spacing for touch devices */
+        @media (pointer: coarse) {
+            .ringing-buttons {
+                gap: 1rem;
+            }
+            
+            .ringing-buttons button {
+                min-height: 48px;
+                padding: 1rem 1.5rem;
+            }
+        }
+        
+        /* Improved focus states for accessibility */
+        button:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+        
+        input:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+    </style>
 </head>
-<body>
+<body class="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 text-gray-900 flex items-center justify-center p-4 font-sans antialiased">
+    <div class="main-container w-full max-w-2xl mx-auto bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 lg:p-10 flex flex-col items-center space-y-4 sm:space-y-6 lg:space-y-10 border border-gray-100 backdrop-filter backdrop-blur-md bg-opacity-80">
+        <h1 class="title text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-blue-600 drop-shadow-md text-center">
+            Wake Up!
+        </h1>
+        <div id="current-time" class="time-display text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-light tracking-wide text-gray-800 drop-shadow-sm text-center">
+            12:00:00 AM
+        </div>
+        <div id="alarm-section" class="w-full flex flex-col items-center space-y-4 sm:space-y-6 lg:space-y-8">
+            <p id="alarm-set-message" class="text-sm sm:text-base lg:text-lg text-gray-600 font-medium text-center px-2">Set an alarm to wake up</p>
+            <div class="alarm-input-group flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4 w-full max-w-lg">
+                <input
+                    id="alarm-time"
+                    type="time"
+                    class="w-full sm:w-auto bg-gray-100 text-gray-800 text-base sm:text-lg p-3 sm:p-4 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-blue-500 transition duration-300 shadow-inner min-h-[44px]"
+                />
+                <div class="alarm-buttons flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+                    <button
+                        id="set-alarm-btn"
+                        class="w-full sm:w-auto py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold shadow-lg hover:from-blue-600 hover:to-indigo-700 transition duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 min-h-[44px]"
+                    >
+                        <span class="text-sm sm:text-base">Set Alarm</span>
+                    </button>
+                    <button
+                        id="clear-alarm-btn"
+                        style="display:none"
+                        class="w-full sm:w-auto py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-full bg-gradient-to-r from-red-500 to-pink-600 text-white font-bold shadow-lg hover:from-red-600 hover:to-pink-700 transition duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 min-h-[44px]"
+                    >
+                        <span class="text-sm sm:text-base">Clear Alarm</span>
+                    </button>
+                </div>
+            </div>
+            <div id="status-message" class="h-6 text-green-600 font-semibold text-center text-xs sm:text-sm lg:text-base px-2"></div>
+        </div>
+        <div id="ringing-section" style="display:none" class="w-full flex flex-col items-center space-y-4 sm:space-y-6">
+            <div class="animate-pulse text-red-500 flex items-center space-x-2 text-base sm:text-lg lg:text-xl font-bold">
+                <span class="text-lg sm:text-xl">🔔</span>
+                <span>ALARM RINGING!</span>
+            </div>
+            <div id="clap-detection-mode" class="w-full">
+                <div class="mode-display text-xl sm:text-2xl lg:text-4xl font-extrabold text-indigo-500 flex items-center justify-center space-x-2 sm:space-x-3">
+                    <span class="text-2xl sm:text-3xl lg:text-4xl">👏</span>
+                    <span id="clap-count">0 / 10 Claps</span>
+                </div>
+                <p id="ringing-status" class="mode-text text-xs sm:text-sm text-gray-600 font-medium text-center mt-2 px-2">
+                    Clap 10 times to turn off the alarm!
+                </p>
+            </div>
+            <div id="laptop-mode" style="display:none" class="w-full text-center">
+                <div class="mode-display text-xl sm:text-2xl lg:text-4xl font-extrabold text-purple-500 flex items-center justify-center space-x-2 sm:space-x-3">
+                    <span class="text-2xl sm:text-3xl lg:text-4xl">⌨</span>
+                    <span id="key-count">0 / 10 Presses</span>
+                </div>
+                <p class="mode-text text-xs sm:text-sm text-gray-600 font-medium mt-2 px-2">
+                    Press SPACEBAR 10 times to turn off the alarm!
+                </p>
+            </div>
+            <div class="ringing-buttons flex flex-col sm:grid sm:grid-cols-2 lg:flex lg:flex-row items-center gap-3 sm:gap-4 w-full sm:max-w-2xl">
+                <button
+                    id="mute-btn"
+                    class="w-full lg:w-auto py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold shadow-lg hover:from-yellow-500 hover:to-orange-600 transition duration-300 transform hover:scale-105 min-h-[44px]"
+                >
+                    <span class="text-sm sm:text-base">Mute</span>
+                </button>
+                <button
+                    id="manual-clap-btn"
+                    class="w-full lg:w-auto py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-full bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold shadow-md hover:from-green-500 hover:to-blue-600 transition duration-300 transform hover:scale-105 min-h-[44px]"
+                >
+                    <span class="text-sm sm:text-base">Manual Clap</span>
+                </button>
+                <button
+                    id="switch-mode-btn"
+                    class="w-full lg:w-auto py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-full bg-gradient-to-r from-purple-400 to-pink-500 text-white font-semibold shadow-md hover:from-purple-500 hover:to-pink-600 transition duration-300 transform hover:scale-105 min-h-[44px]"
+                >
+                    <span class="text-sm sm:text-base">Switch Mode</span>
+                </button>
+                <button
+                    id="stop-alarm-btn"
+                    class="w-full lg:w-auto py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-full bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold shadow-md hover:from-gray-600 hover:to-gray-700 transition duration-300 transform hover:scale-105 min-h-[44px]"
+                >
+                    <span class="text-sm sm:text-base">Stop Alarm</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Simple HTML/JS version of the alarm clock (no React, no Tone.js, no lucide-react)
+        let alarmTime = '';
+        let isAlarmSet = false;
+        let isAlarmRinging = false;
+        let clapCount = 0;
+        let keyPressCount = 0;
+        let isMute = false;
+        let alarmInterval = null;
+        let jokeTimeout = null;
+        let audioStream = null;
+        let audioContext = null;
+        let analyser = null;
+        let lastClapTime = 0;
+        let lastKeyPressTime = 0;
+        let isLaptopMode = false;
+        let isClapMode = true;
 
-<h1>🛸 Intergalactic Identity Bureau 🛸</h1>
-<p>Enter your name to reveal your alien past life record</p>
-<input type="text" id="nameInput" placeholder="Enter your name">
-<button onclick="generateAlienProfile()">Reveal Identity</button>
+        function formatTime(date) {
+            let hours = date.getHours();
+            let minutes = date.getMinutes();
+            let seconds = date.getSeconds();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            return hours + ':' + minutes + ':' + seconds + ' ' + ampm;
+        }
 
-<div class="result" id="resultBox"></div>
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = formatTime(now);
 
-<script>
-function generateAlienProfile() {
-    let name = document.getElementById('nameInput').value.trim();
-    if (!name) {
-        alert("Please enter your name");
-        return;
-    }
+            if (isAlarmSet && alarmTime) {
+                const [hours, minutes] = alarmTime.split(':');
+                if (
+                    now.getHours() === parseInt(hours, 10) &&
+                    now.getMinutes() === parseInt(minutes, 10) &&
+                    now.getSeconds() === 0
+                ) {
+                    startAlarm();
+                }
+            }
+        }
 
-    // Alien name conversion
-    let alienName = name
-        .replace(/a/gi, "æ")
-        .replace(/e/gi, "ë")
-        .replace(/i/gi, "ï")
-        .replace(/o/gi, "ø")
-        .replace(/u/gi, "û")
-        .replace(/n/gi, "ñ") + " of " + getRandom(["T’Zorin-4","Xebara Prime","Veyra-9","Orivon","Zynthara"]);
+        function startAlarm() {
+            isAlarmRinging = true;
+            clapCount = 0;
+            keyPressCount = 0;
+            
+            // Detect if user is on a laptop/desktop (larger screen) vs mobile
+            const isLargeScreen = window.innerWidth >= 1024;
+            isLaptopMode = isLargeScreen;
+            
+            document.getElementById('alarm-section').style.display = 'none';
+            document.getElementById('ringing-section').style.display = '';
+            
+            if (isLaptopMode) {
+                switchToKeyboardMode();
+            } else {
+                switchToClapMode();
+            }
+            
+            playAlarmSound();
+            
+            if (isClapMode) {
+                startClapDetection();
+            }
+            
+            // Add keyboard listener for laptop mode
+            document.addEventListener('keydown', handleKeyPress);
+            
+            jokeTimeout = setTimeout(() => {
+                const statusEl = document.getElementById('ringing-status');
+                if (statusEl) {
+                    statusEl.textContent = isLaptopMode ? 
+                        "Wake up! Keep pressing SPACEBAR!" : 
+                        "You lazy fellow, clap louder!";
+                }
+            }, 30000);
+        }
 
-    // Planetary description
-    let planet = getRandom([
-        "a temperate ocean planet with coral cities beneath sapphire waves",
-        "a desert world with twin suns and endless dune seas",
-        "a frozen moon with subterranean crystal caverns",
-        "a gas giant’s orbiting station-ring where storms last for centuries",
-        "a volcanic world rich in rare energy minerals"
-    ]);
+        function switchToClapMode() {
+            isClapMode = true;
+            document.getElementById('clap-detection-mode').style.display = '';
+            document.getElementById('laptop-mode').style.display = 'none';
+            document.getElementById('clap-count').textContent = clapCount + ' / 10 Claps';
+            document.getElementById('switch-mode-btn').textContent = 'Keyboard Mode';
+            
+            if (isAlarmRinging && !audioStream) {
+                startClapDetection();
+            }
+        }
 
-    // Species classification
-    let species = getRandom([
-        "Hominis Aquaflora – semi-aquatic humanoids with bioluminescent patterns",
-        "Sylvaran Noctis – tall, night-dwelling beings with reflective eyes",
-        "Terravox Sentari – telepathic explorers adapted to low gravity",
-        "Cryovian Lux – crystalline lifeforms that refract starlight",
-        "Dravari Solun – heat-resistant beings with ember-like skin"
-    ]);
+        function switchToKeyboardMode() {
+            isClapMode = false;
+            document.getElementById('clap-detection-mode').style.display = 'none';
+            document.getElementById('laptop-mode').style.display = '';
+            document.getElementById('key-count').textContent = keyPressCount + ' / 10 Presses';
+            document.getElementById('switch-mode-btn').textContent = 'Clap Mode';
+            
+            if (audioStream) {
+                stopClapDetection();
+            }
+        }
 
-    // Role in society
-    let role = getRandom([
-        "Starship Navigator mapping hyperspace currents",
-        "Tidal Cartographer charting deep-ocean migration routes",
-        "Celestial Diplomat negotiating peace between rival worlds",
-        "Artifact Keeper guarding relics from pre-warp civilizations",
-        "Quantum Botanist cultivating plants that grow in zero gravity"
-    ]);
+        function handleKeyPress(event) {
+            if (!isAlarmRinging || isClapMode) return;
+            
+            if (event.code === 'Space') {
+                event.preventDefault();
+                const now = Date.now();
+                
+                if (now - lastKeyPressTime > 200) { // Prevent rapid fire
+                    keyPressCount++;
+                    document.getElementById('key-count').textContent = keyPressCount + ' / 10 Presses';
+                    
+                    // Visual feedback
+                    const keyCountEl = document.getElementById('key-count');
+                    keyCountEl.style.color = '#10b981';
+                    setTimeout(() => {
+                        keyCountEl.style.color = '#a855f7';
+                    }, 200);
+                    
+                    if (keyPressCount >= 10) {
+                        stopAlarm();
+                        return;
+                    }
+                    lastKeyPressTime = now;
+                }
+            }
+        }
 
-    // Personality
-    let personality = getRandom([
-        "Highly intuitive and empathetic, drawn to uncovering hidden truths",
-        "Strategic and disciplined, respected for unwavering loyalty",
-        "Adventurous and curious, often venturing beyond safe borders",
-        "Calm and analytical, known for solving complex interstellar disputes",
-        "Energetic and inventive, creating tools centuries ahead of your time"
-    ]);
+        function stopAlarm() {
+            isAlarmRinging = false;
+            isAlarmSet = false;
+            clapCount = 0;
+            keyPressCount = 0;
+            document.getElementById('alarm-section').style.display = '';
+            document.getElementById('ringing-section').style.display = 'none';
+            document.getElementById('status-message').textContent = 'Alarm dismissed! Good morning!';
+            stopAlarmSound();
+            stopClapDetection();
+            document.removeEventListener('keydown', handleKeyPress);
+            clearTimeout(jokeTimeout);
+        }
 
-    // Historical event
-    let history = getRandom([
-        "Survived the 5th Moonquake War and negotiated the ceasefire treaty",
-        "Led the first successful expedition through the Zynara Nebula",
-        "Defended the Sapphire Reefs from the Solar Tide Raiders",
-        "Discovered an ancient starmap that revealed hidden wormholes",
-        "Brokered an alliance between the Orivon Clans and Zyntharan Guilds"
-    ]);
+        function playAlarmSound() {
+            if (isMute) return;
+            alarmInterval = setInterval(() => {
+                // Simple beep using Web Audio API
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = ctx.createOscillator();
+                oscillator.type = 'triangle';
+                oscillator.frequency.value = 440;
+                oscillator.connect(ctx.destination);
+                oscillator.start();
+                setTimeout(() => {
+                    oscillator.stop();
+                    ctx.close();
+                }, 200);
+            }, 500);
+        }
 
-    let result = 
-`📄 ALIEN RECORD FILE: CLASSIFIED – ACCESS GRANTED
+        function stopAlarmSound() {
+            clearInterval(alarmInterval);
+        }
 
-👽 Alien Name: ${alienName}
-🌍 Homeworld: ${planet}
-🧬 Species: ${species}
-🛠 Role in Society: ${role}
-💠 Personality Traits: ${personality}
-📜 Notable History: ${history}
+        function startClapDetection() {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                audioStream = stream;
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                source.connect(analyser);
+                analyser.fftSize = 512;
+                analyser.smoothingTimeConstant = 0.3;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                let previousAverage = 0;
+                let clapThreshold = 50; // Lower threshold for better sensitivity
 
-⚠️ Record pulled from Intergalactic Archives – authenticity unverifiable.`;
+                function detectClap() {
+                    analyser.getByteFrequencyData(dataArray);
+                    
+                    // Calculate average volume
+                    const average = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
+                    
+                    // Calculate the difference from previous reading for spike detection
+                    const volumeSpike = average - previousAverage;
+                    
+                    const now = Date.now();
+                    
+                    // Detect clap based on volume spike and minimum threshold
+                    if (volumeSpike > clapThreshold && average > 30 && (now - lastClapTime) > 300) {
+                        clapCount++;
+                        document.getElementById('clap-count').textContent = clapCount + ' / 10 Claps';
+                        const statusEl = document.getElementById('ringing-status');
+                        if (statusEl) {
+                            statusEl.textContent = 'Great! Keep clapping... ' + (10 - clapCount) + ' more to go!';
+                        }
+                        
+                        // Visual feedback for clap detection
+                        const clapCountEl = document.getElementById('clap-count');
+                        clapCountEl.style.color = '#10b981';
+                        setTimeout(() => {
+                            clapCountEl.style.color = '#6366f1';
+                        }, 200);
+                        
+                        if (clapCount >= 10) {
+                            stopAlarm();
+                            return;
+                        }
+                        lastClapTime = now;
+                        
+                        // Adaptive threshold - make it slightly easier after first clap
+                        if (clapCount === 1) {
+                            clapThreshold = Math.max(30, clapThreshold * 0.8);
+                        }
+                    }
+                    
+                    previousAverage = average;
+                    
+                    if (isAlarmRinging && isClapMode) {
+                        requestAnimationFrame(detectClap);
+                    }
+                }
+                
+                const statusEl = document.getElementById('ringing-status');
+                if (statusEl) {
+                    statusEl.textContent = 'Microphone ready! Clap loudly 10 times to stop the alarm!';
+                }
+                requestAnimationFrame(detectClap);
+            }).catch(() => {
+                const statusEl = document.getElementById('ringing-status');
+                if (statusEl) {
+                    statusEl.textContent = 'Microphone access denied. Use manual controls or switch to keyboard mode.';
+                }
+                
+                setTimeout(() => {
+                    if (isAlarmRinging) {
+                        switchToKeyboardMode();
+                    }
+                }, 2000);
+            });
+        }
 
-    document.getElementById('resultBox').innerText = result;
-}
+        function stopClapDetection() {
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+                audioStream = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+        }
 
-function getRandom(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-}
-</script>
+        document.getElementById('set-alarm-btn').onclick = function() {
+            const timeInput = document.getElementById('alarm-time').value;
+            if (timeInput) {
+                alarmTime = timeInput;
+                isAlarmSet = true;
+                document.getElementById('alarm-set-message').textContent = 'Alarm set for: ' + alarmTime;
+                document.getElementById('status-message').textContent = 'Alarm set for ' + alarmTime;
+                document.getElementById('set-alarm-btn').disabled = true;
+                document.getElementById('clear-alarm-btn').style.display = '';
+            }
+        };
 
+        document.getElementById('clear-alarm-btn').onclick = function() {
+            isAlarmSet = false;
+            alarmTime = '';
+            document.getElementById('alarm-time').value = '';
+            document.getElementById('alarm-set-message').textContent = 'Set an alarm to wake up';
+            document.getElementById('status-message').textContent = 'Alarm cleared.';
+            document.getElementById('set-alarm-btn').disabled = false;
+            document.getElementById('clear-alarm-btn').style.display = 'none';
+        };
+
+        document.getElementById('mute-btn').onclick = function() {
+            isMute = !isMute;
+            this.textContent = isMute ? 'Unmute' : 'Mute';
+            if (isMute) {
+                stopAlarmSound();
+            } else if (isAlarmRinging) {
+                playAlarmSound();
+            }
+        };
+
+        document.getElementById('manual-clap-btn').onclick = function() {
+            if (isAlarmRinging) {
+                if (isClapMode) {
+                    clapCount++;
+                    document.getElementById('clap-count').textContent = clapCount + ' / 10 Claps';
+                    const statusEl = document.getElementById('ringing-status');
+                    if (statusEl) {
+                        statusEl.textContent = 'Manual clap registered! ' + (10 - clapCount) + ' more to go!';
+                    }
+                    
+                    // Visual feedback
+                    const clapCountEl = document.getElementById('clap-count');
+                    clapCountEl.style.color = '#10b981';
+                    setTimeout(() => {
+                        clapCountEl.style.color = '#6366f1';
+                    }, 200);
+                    
+                    if (clapCount >= 10) {
+                        stopAlarm();
+                    }
+                } else {
+                    keyPressCount++;
+                    document.getElementById('key-count').textContent = keyPressCount + ' / 10 Presses';
+                    
+                    // Visual feedback
+                    const keyCountEl = document.getElementById('key-count');
+                    keyCountEl.style.color = '#10b981';
+                    setTimeout(() => {
+                        keyCountEl.style.color = '#a855f7';
+                    }, 200);
+                    
+                    if (keyPressCount >= 10) {
+                        stopAlarm();
+                    }
+                }
+            }
+        };
+
+        document.getElementById('switch-mode-btn').onclick = function() {
+            if (isAlarmRinging) {
+                if (isClapMode) {
+                    switchToKeyboardMode();
+                } else {
+                    switchToClapMode();
+                }
+            }
+        };
+
+        document.getElementById('stop-alarm-btn').onclick = function() {
+            if (isAlarmRinging) {
+                stopAlarm();
+            }
+        };
+
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
 </body>
 </html>
